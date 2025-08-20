@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Validação de Fotos (JPEG/JPG)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --danger: #b91c1c;
+      --ok: #0f766e;
+      --shadow: 0 10px 25px rgba(0,0,0,.08);
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 32px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+    }
+
+    .wrap {
+      max-width: 760px; margin: 0 auto; background: var(--card);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 28px;
+    }
+
+    h1 { margin: 0 0 10px; font-size: 22px; }
+    p.desc { margin: 6px 0 20px; color: var(--muted); }
+
+    .field {
+      display: grid; gap: 8px; margin-bottom: 18px;
+    }
+    input[type="file"] {
+      padding: 14px; border: 1px solid #e5e7eb; border-radius: 12px; background: #fff;
+    }
+
+    .hint {
+      font-size: 14px; color: var(--muted);
+    }
+
+    .result {
+      margin-top: 14px; padding: 12px 14px; border-radius: 10px; display: none;
+    }
+    .result.ok { display: block; background: #ecfdf5; border: 1px solid #a7f3d0; color: var(--ok); }
+    .result.fail { display: block; background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); }
+
+    /* Modal */
+    .modal {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,.55);
+      align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal.open { display: flex; }
+    .modal-card {
+      width: min(680px, 96vw); max-height: 86vh; overflow: auto;
+      background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 18px 18px 8px;
+      animation: pop .18s ease-out;
+    }
+    @keyframes pop { from { transform: scale(.96); opacity: .4 } to { transform: scale(1); opacity: 1 } }
+
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;
+    }
+    .modal-title { font-size: 18px; margin: 0; color: var(--danger); }
+    .close-btn {
+      border: 0; background: #111827; color: #fff; padding: 8px 12px; border-radius: 10px; cursor: pointer;
+    }
+    .error-list { margin: 10px 0 0; padding: 0 0 10px 0; list-style: none; }
+    .error-item {
+      background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 12px; margin: 10px 0;
+    }
+    .file-name { font-weight: 600; margin-bottom: 6px; word-break: break-all; }
+    .reasons { margin: 0; padding-left: 18px; }
+    .reasons li { margin: 4px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Upload de Fotos</h1>
+    <p class="desc">Precisamos que as fotos estejam em <strong>JPEG/JPG</strong>, com <strong>menos de 500 KB</strong> e com <strong>menos de 1920 px</strong> em qualquer lado.</p>
+
+    <div class="field">
+      <label for="fileInput">Selecione as fotos</label>
+      <input id="fileInput" type="file" accept=".jpg,.jpeg,image/jpeg" multiple />
+      <div class="hint">Dica: você pode selecionar várias imagens de uma vez.</div>
+    </div>
+
+    <div id="resultOk" class="result ok">Todas as fotos estão válidas ✅</div>
+    <div id="resultFail" class="result fail">Algumas fotos possuem erros. Veja a lista no popup.</div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal" aria-modal="true" role="dialog">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Fotos inválidas encontradas</h2>
+        <button class="close-btn" id="closeModalBtn">Fechar</button>
+      </div>
+      <ul id="errorList" class="error-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    const fileInput   = document.getElementById('fileInput');
+    const modal       = document.getElementById('modal');
+    const closeBtn    = document.getElementById('closeModalBtn');
+    const errorListEl = document.getElementById('errorList');
+    const resultOk    = document.getElementById('resultOk');
+    const resultFail  = document.getElementById('resultFail');
+
+    const SIZE_LIMIT_BYTES = 500 * 1024;     // 500 KB (limite estrito)
+    const DIM_LIMIT_PX     = 1920;           // menos que 1920 em qualquer dimensão
+
+    fileInput.addEventListener('change', async () => {
+      hideBanners();
+      const files = Array.from(fileInput.files || []);
+      if (!files.length) return;
+
+      // Valida todos os arquivos coletando TODOS os motivos de erro por arquivo
+      const validations = await Promise.all(files.map(validateFile));
+
+      // Monta a lista de erros (apenas os arquivos que têm pelo menos 1 motivo)
+      const invalids = validations.filter(v => v.reasons.length > 0);
+
+      if (invalids.length === 0) {
+        resultOk.style.display = 'block';
+      } else {
+        resultFail.style.display = 'block';
+        renderErrors(invalids);
+        openModal();
+      }
+    });
+
+    function hideBanners() {
+      resultOk.style.display = 'none';
+      resultFail.style.display = 'none';
+    }
+
+    async function validateFile(file) {
+      const reasons = [];
+      const name = file.name;
+      const ext = name.split('.').pop()?.toLowerCase() || '';
+
+      // Extensão
+      if (!['jpg', 'jpeg'].includes(ext)) {
+        reasons.push('Extensão inválida (apenas .jpg ou .jpeg).');
+      }
+
+      // Tamanho (>= 500 KB é inválido, pois precisa ser menor que 500 KB)
+      if (file.size >= SIZE_LIMIT_BYTES) {
+        const kb = (file.size / 1024).toFixed(0);
+        reasons.push(`Arquivo com ${kb} KB (tem que ser menor que 500 KB).`);
+      }
+
+      // Dimensões (somente tentamos ler se for imagem)
+      // Mesmo que a extensão esteja certa, garantimos leitura via Image.
+      try {
+        const { width, height } = await getImageDimensions(file);
+        if (width >= DIM_LIMIT_PX || height >= DIM_LIMIT_PX) {
+          reasons.push(`Dimensão ${width}×${height}px (cada lado deve ser menor que 1920px).`);
+        }
+      } catch (e) {
+        // Se não conseguir ler dimensões, informe (útil para arquivos corrompidos ou não-imagem)
+        reasons.push('Não foi possível ler as dimensões da imagem (arquivo pode estar corrompido ou não é uma imagem válida).');
+      }
+
+      return { file, reasons };
+    }
+
+    function getImageDimensions(file) {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          const width = img.naturalWidth || img.width;
+          const height = img.naturalHeight || img.height;
+          URL.revokeObjectURL(url);
+          resolve({ width, height });
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error('Erro ao carregar imagem'));
+        };
+        img.src = url;
+      });
+    }
+
+    function renderErrors(invalids) {
+      errorListEl.innerHTML = '';
+      invalids.forEach(({ file, reasons }) => {
+        const li = document.createElement('li');
+        li.className = 'error-item';
+        li.innerHTML = `
+          <div class="file-name">${escapeHtml(file.name)}</div>
+          <ul class="reasons">
+            ${reasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
+          </ul>
+        `;
+        errorListEl.appendChild(li);
+      });
+    }
+
+    function openModal()  { modal.classList.add('open'); }
+    function closeModal() { modal.classList.remove('open'); }
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal(); // fecha ao clicar fora do card
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Segurança simples para nomes/mensagens
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+  </script>
+</body>
+</html>
