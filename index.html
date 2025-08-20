@@ -82,7 +82,7 @@
 <body>
   <div class="wrap">
     <h1>Upload de Fotos</h1>
-    <p class="desc">Precisamos que as fotos estejam em <strong>JPEG/JPG</strong>, com <strong>menos de 500 KB</strong> e com <strong>menos de 1920 px</strong> em qualquer lado.</p>
+    <p class="desc">Precisamos que as fotos estejam em <strong>JPEG/JPG</strong>, com <strong>menos de 500 KB</strong> e com <strong>o máximo de 1920 px</strong> em qualquer lado.</p>
 
     <div class="field">
       <label for="fileInput">Selecione as fotos</label>
@@ -161,8 +161,8 @@
       // Mesmo que a extensão esteja certa, garantimos leitura via Image.
       try {
         const { width, height } = await getImageDimensions(file);
-        if (width >= DIM_LIMIT_PX || height >= DIM_LIMIT_PX) {
-          reasons.push(`Dimensão ${width}×${height}px (cada lado deve ser menor que 1920px).`);
+        if (width > DIM_LIMIT_PX || height > DIM_LIMIT_PX) {
+          reasons.push(`Dimensão ${width}×${height}px (cada lado deve ter no máximo 1920px).`);
         }
       } catch (e) {
         // Se não conseguir ler dimensões, informe (útil para arquivos corrompidos ou não-imagem)
