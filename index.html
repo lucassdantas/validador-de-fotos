@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>Validação de Fotos RD Exclusive (JPEG/JPG)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" type="image/x-icon" href="/imgs/icone-rd-exclusive-tools.png">
+  <link rel="icon" type="image/x-icon" href="imgs/icone-rd-exclusive-tools.png">
 
   <style>
     :root {
@@ -189,15 +189,21 @@
   </style>
 </head>
 <body>
+  <script>
+    // Se já visitou, remove o splash imediatamente
+    if (localStorage.getItem("rd_tools_visited")) {
+      document.write('<style>#splash{display:none !important;}</style>');
+    }
+  </script>
   <!-- Splash screen -->
   <div id="splash" class="splash">
-    <img src="/imgs/logo-branca-rd-exclusive.png" alt="RD Exclusive" />
+    <img src="imgs/logo-branca-rd-exclusive.png" alt="RD Exclusive" />
     <p class="openingText">Uma Experiência <span>Exclusiva</span></p>
   </div>
 
   <div class="wrap" id="mainContent" style="display:none">
     <div class="header">
-      <img src="/imgs/rd-exclusive-logo.png" alt="logo rd exclusive" class='rd-logo'/>
+      <img src="imgs/rd-exclusive-logo.png" alt="logo rd exclusive" class='rd-logo'/>
       <button id="toggleTheme" class="theme-btn">🌙</button>
     </div>
     <h1>Upload de Fotos</h1>
@@ -233,13 +239,13 @@
     const footer = document.getElementById('footer');
 
     window.addEventListener("load", () => {
-      const alreadyVisited = localStorage.getItem("visited");
+      const alreadyVisited = localStorage.getItem("rd_tools_visited");
 
       if (!alreadyVisited) {
         setTimeout(() => {
           splash.classList.add("hidden");
           mainContent.style.display = "block";
-          localStorage.setItem("visited", "true");
+          localStorage.setItem("rd_tools_visited", "true");
         }, 2000);
       } else {
         splash.style.display = "none";
