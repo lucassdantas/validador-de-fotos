@@ -153,6 +153,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      text-align:center;
       z-index: 2000;
       opacity: 1;
       transition: all 1s ease;
@@ -168,9 +169,12 @@
     }
     .splash p {
       color: #fff;
-      font-size: 18px;
+      font-size: 32px;
       letter-spacing: 1px;
       opacity: 0.9;
+    }
+    .splash span{
+      text-shadow:#ffffff44 0 1px 12px;
     }
     footer{
       margin: 0 auto;
@@ -186,7 +190,7 @@
   <!-- Splash screen -->
   <div id="splash" class="splash">
     <img src="/imgs/logo-branca-rd-exclusive.png" alt="RD Exclusive" />
-    <p>uma experiência exclusiva</p>
+    <p class="openingText">Uma Experiência <span>Exclusiva</span></p>
   </div>
 
   <div class="wrap" id="mainContent" style="display:none">
