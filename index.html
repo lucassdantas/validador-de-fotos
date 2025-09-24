@@ -1,49 +1,111 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <title>Validação de Fotos (JPEG/JPG)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      --bg: #f6f7f9;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --danger: #b91c1c;
-      --ok: #0f766e;
-      --shadow: 0 10px 25px rgba(0,0,0,.08);
+      --bg-light: #f6f7f9;
+      --card-light: #ffffff;
+      --text-light: #1f2937;
+      --muted-light: #6b7280;
+
+      --bg-dark: #111827;
+      --card-dark: #1f2937;
+      --text-dark: #f9fafb;
+      --muted-dark: #9ca3af;
+
+      --danger: #ef4444;
+      --ok: #10b981;
+      --shadow: 0 10px 25px rgba(0,0,0,.1);
       --radius: 14px;
+    }
+
+    [data-theme="light"] {
+      --bg: var(--bg-light);
+      --card: var(--card-light);
+      --text: var(--text-light);
+      --muted: var(--muted-light);
+    }
+    [data-theme="dark"] {
+      --bg: var(--bg-dark);
+      --card: var(--card-dark);
+      --text: var(--text-dark);
+      --muted: var(--muted-dark);
     }
 
     * { box-sizing: border-box; }
     body {
-      margin: 0; padding: 32px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0; padding: 32px;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background: var(--bg); color: var(--text);
+      transition: background .25s, color .25s;
     }
 
-    .rd-logo{
-      width:100%;
-      max-width:80px;
-    }
     .wrap {
-      max-width: 760px; margin: 0 auto; background: var(--card);
+      max-width: 760px; margin: 0 auto;
+      background: var(--card);
       border-radius: var(--radius); box-shadow: var(--shadow);
-      padding: 28px;
+      padding: 28px; transition: background .25s;
     }
 
-    h1 { margin: 0 0 10px; font-size: 22px; }
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .rd-logo{ width:100%; max-width:120px; background-color:#fff;border-radius:var(--radius);padding:1em;}
+
+    h1 { margin: 0; font-size: 22px; }
     p.desc { margin: 6px 0 20px; color: var(--muted); }
 
-    .field {
-      display: grid; gap: 8px; margin-bottom: 18px;
+    /* Botão de tema */
+    .theme-btn {
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: background .2s;
     }
-    input[type="file"] {
-      padding: 14px; border: 1px solid #e5e7eb; border-radius: 12px; background: #fff;
+    .theme-btn:hover {
+      background: rgba(0,0,0,.08);
+    }
+    [data-theme="dark"] .theme-btn:hover {
+      background: rgba(255,255,255,.1);
     }
 
-    .hint {
-      font-size: 14px; color: var(--muted);
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed var(--muted);
+      border-radius: 14px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .dropzone:hover {
+      border-color: var(--ok);
+      background: rgba(16,185,129,.08);
+    }
+    .dropzone.dragover {
+      border-color: var(--ok);
+      background: rgba(16,185,129,.15);
+    }
+    .dropzone input { display: none; }
+    .dropzone-icon {
+      font-size: 40px;
+      color: var(--muted);
+    }
+    .dropzone-text {
+      font-size: 15px;
+      color: var(--muted);
+      white-space: nowrap;
     }
 
     .result {
@@ -61,7 +123,7 @@
     .modal.open { display: flex; }
     .modal-card {
       width: min(680px, 96vw); max-height: 86vh; overflow: auto;
-      background: #fff; border-radius: var(--radius); box-shadow: var(--shadow);
+      background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
       padding: 18px 18px 8px;
       animation: pop .18s ease-out;
     }
@@ -72,7 +134,7 @@
     }
     .modal-title { font-size: 18px; margin: 0; color: var(--danger); }
     .close-btn {
-      border: 0; background: #111827; color: #fff; padding: 8px 12px; border-radius: 10px; cursor: pointer;
+      border: 0; background: var(--danger); color: #fff; padding: 8px 12px; border-radius: 10px; cursor: pointer;
     }
     .error-list { margin: 10px 0 0; padding: 0 0 10px 0; list-style: none; }
     .error-item {
@@ -85,15 +147,19 @@
 </head>
 <body>
   <div class="wrap">
-    <img src="/imgs/rd-exclusive-logo.png" alt="logo rd exclusive" class='rd-logo'/>
-    <h1>Upload de Fotos</h1>
-    <p class="desc">Precisamos que as fotos estejam em <strong>JPEG/JPG</strong>, com <strong>menos de 500 KB</strong>, com <strong>o máximo de 1920 px</strong> em qualquer lado e <strong>nomeadas corretamente</strong>.</p>
-
-    <div class="field">
-      <label for="fileInput">Selecione as fotos</label>
-      <input id="fileInput" type="file" accept=".jpg,.jpeg,image/jpeg" multiple />
-      <div class="hint">Dica: você pode selecionar várias imagens de uma vez.</div>
+    <div class="header">
+      <img src="/imgs/rd-exclusive-logo.png" alt="logo rd exclusive" class='rd-logo'/>
+      <button id="toggleTheme" class="theme-btn">🌙</button>
     </div>
+    <h1>Upload de Fotos</h1>
+    <p class="desc">As fotos devem estar em <strong>JPEG/JPG</strong>, com <strong>menos de 500 KB</strong>, no máximo <strong>1920 px</strong> em qualquer lado e <strong>nomeadas corretamente</strong>.</p>
+
+    <!-- Dropzone -->
+    <label for="fileInput" class="dropzone" id="dropzone">
+      <div class="dropzone-icon">📁</div>
+      <div class="dropzone-text">Clique ou arraste as fotos aqui</div>
+      <input id="fileInput" type="file" accept=".jpg,.jpeg,image/jpeg" multiple />
+    </label>
 
     <div id="resultOk" class="result ok">Todas as fotos estão válidas ✅</div>
     <div id="resultFail" class="result fail">Algumas fotos possuem erros. Veja a lista no popup.</div>
@@ -112,24 +178,36 @@
 
   <script>
     const fileInput   = document.getElementById('fileInput');
+    const dropzone    = document.getElementById('dropzone');
     const modal       = document.getElementById('modal');
     const closeBtn    = document.getElementById('closeModalBtn');
     const errorListEl = document.getElementById('errorList');
     const resultOk    = document.getElementById('resultOk');
     const resultFail  = document.getElementById('resultFail');
+    const toggleTheme = document.getElementById('toggleTheme');
 
-    const SIZE_LIMIT_BYTES = 500 * 1024;     // 500 KB (limite estrito)
-    const DIM_LIMIT_PX     = 1920;           // menos que 1920 em qualquer dimensão
+    const SIZE_LIMIT_BYTES = 500 * 1024; 
+    const DIM_LIMIT_PX     = 1920;
 
-    fileInput.addEventListener('change', async () => {
+    // Upload
+    fileInput.addEventListener('change', handleFiles);
+    dropzone.addEventListener('dragover', e => {
+      e.preventDefault(); dropzone.classList.add('dragover');
+    });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      fileInput.files = e.dataTransfer.files;
+      handleFiles();
+    });
+
+    async function handleFiles() {
       hideBanners();
       const files = Array.from(fileInput.files || []);
       if (!files.length) return;
 
-      // Valida todos os arquivos coletando TODOS os motivos de erro por arquivo
       const validations = await Promise.all(files.map(validateFile));
-
-      // Monta a lista de erros (apenas os arquivos que têm pelo menos 1 motivo)
       const invalids = validations.filter(v => v.reasons.length > 0);
 
       if (invalids.length === 0) {
@@ -139,7 +217,7 @@
         renderErrors(invalids);
         openModal();
       }
-    });
+    }
 
     function hideBanners() {
       resultOk.style.display = 'none';
@@ -151,29 +229,22 @@
       const name = file.name;
       const ext = name.split('.').pop()?.toLowerCase() || '';
 
-      // Extensão
       if (!['jpg', 'jpeg'].includes(ext)) {
         reasons.push('Extensão inválida (apenas .jpg ou .jpeg).');
       }
-
-      // Tamanho (>= 500 KB é inválido, pois precisa ser menor que 500 KB)
       if (file.size >= SIZE_LIMIT_BYTES) {
         const kb = (file.size / 1024).toFixed(0);
         reasons.push(`Arquivo com ${kb} KB (tem que ser menor que 500 KB).`);
       }
 
-      // Dimensões (somente tentamos ler se for imagem)
-      // Mesmo que a extensão esteja certa, garantimos leitura via Image.
       try {
         const { width, height } = await getImageDimensions(file);
         if (width > DIM_LIMIT_PX || height > DIM_LIMIT_PX) {
           reasons.push(`Dimensão ${width}×${height}px (cada lado deve ter no máximo 1920px).`);
         }
       } catch (e) {
-        // Se não conseguir ler dimensões, informe (útil para arquivos corrompidos ou não-imagem)
-        reasons.push('Não foi possível ler as dimensões da imagem (arquivo pode estar corrompido ou não é uma imagem válida).');
+        reasons.push('Não foi possível ler as dimensões da imagem.');
       }
-
       return { file, reasons };
     }
 
@@ -182,15 +253,10 @@
         const url = URL.createObjectURL(file);
         const img = new Image();
         img.onload = () => {
-          const width = img.naturalWidth || img.width;
-          const height = img.naturalHeight || img.height;
+          resolve({ width: img.naturalWidth, height: img.naturalHeight });
           URL.revokeObjectURL(url);
-          resolve({ width, height });
         };
-        img.onerror = () => {
-          URL.revokeObjectURL(url);
-          reject(new Error('Erro ao carregar imagem'));
-        };
+        img.onerror = () => { reject(); URL.revokeObjectURL(url); };
         img.src = url;
       });
     }
@@ -202,9 +268,7 @@
         li.className = 'error-item';
         li.innerHTML = `
           <div class="file-name">${escapeHtml(file.name)}</div>
-          <ul class="reasons">
-            ${reasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
-          </ul>
+          <ul class="reasons">${reasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
         `;
         errorListEl.appendChild(li);
       });
@@ -213,22 +277,23 @@
     function openModal()  { modal.classList.add('open'); }
     function closeModal() { modal.classList.remove('open'); }
     closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal(); // fecha ao clicar fora do card
-    });
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
-    });
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-    // Segurança simples para nomes/mensagens
     function escapeHtml(str) {
-      return String(str)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
+      return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;')
+                        .replaceAll('>','&gt;').replaceAll('"','&quot;')
+                        .replaceAll("'","&#039;");
     }
+
+    // Toggle Theme
+    toggleTheme.addEventListener('click', () => {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', next);
+      toggleTheme.textContent = next === 'light' ? '🌙' : '☀️';
+    });
   </script>
 </body>
 </html>
