@@ -172,6 +172,14 @@
       letter-spacing: 1px;
       opacity: 0.9;
     }
+    footer{
+      margin: 0 auto;
+      max-width:768px;
+      bottom:0;
+      padding:1em 0;
+      text-align:center;
+    }
+    a:visited{color:var(--text);}
   </style>
 </head>
 <body>
@@ -199,7 +207,8 @@
     <div id="resultOk" class="result ok">Todas as fotos estão válidas ✅</div>
     <div id="resultFail" class="result fail">Algumas fotos possuem erros. Veja a lista no popup.</div>
   </div>
-
+  
+  <footer id="footer" ></footer>
   <!-- Modal -->
   <div id="modal" class="modal" aria-modal="true" role="dialog">
     <div class="modal-card">
@@ -211,10 +220,11 @@
     </div>
   </div>
 
-  <script>
+  <script defer>
     // Splash logic
     const splash = document.getElementById("splash");
     const mainContent = document.getElementById("mainContent");
+    const footer = document.getElementById('footer');
 
     window.addEventListener("load", () => {
       const alreadyVisited = localStorage.getItem("visited");
@@ -224,11 +234,14 @@
           splash.classList.add("hidden");
           mainContent.style.display = "block";
           localStorage.setItem("visited", "true");
-        }, 2500);
+        }, 2000);
       } else {
         splash.style.display = "none";
         mainContent.style.display = "block";
       }
+      const year = new Date().getFullYear();
+      footer.innerHTML = `Copyright © ${year} <a href='https://rdexclusive.com.br/' target='_blank'>RD Exclusive</a> | Todos os direitos reservados.`;
+      
     });
 
     // Restante do seu JS (upload + modal + tema)
