@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <title>Validação de Fotos (JPEG/JPG)</title>
+  <title>Validação de Fotos RD Exclusive (JPEG/JPG)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -138,15 +138,50 @@
     }
     .error-list { margin: 10px 0 0; padding: 0 0 10px 0; list-style: none; }
     .error-item {
-      background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 12px; margin: 10px 0;
+      background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 12px; margin: 10px 0; color:var(--text-light);
     }
     .file-name { font-weight: 600; margin-bottom: 6px; word-break: break-all; }
     .reasons { margin: 0; padding-left: 18px; }
     .reasons li { margin: 4px 0; }
+
+    /* Splash screen */
+    .splash {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 1;
+      transition: all 1s ease;
+    }
+    .splash.hidden {
+      opacity: 0;
+      transform: translateY(-100%);
+      pointer-events: none;
+    }
+    .splash img {
+      max-width: 180px;
+      margin-bottom: 16px;
+    }
+    .splash p {
+      color: #fff;
+      font-size: 18px;
+      letter-spacing: 1px;
+      opacity: 0.9;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <!-- Splash screen -->
+  <div id="splash" class="splash">
+    <img src="/imgs/logo-branca-rd-exclusive.png" alt="RD Exclusive" />
+    <p>uma experiência exclusiva</p>
+  </div>
+
+  <div class="wrap" id="mainContent" style="display:none">
     <div class="header">
       <img src="/imgs/rd-exclusive-logo.png" alt="logo rd exclusive" class='rd-logo'/>
       <button id="toggleTheme" class="theme-btn">🌙</button>
@@ -177,6 +212,26 @@
   </div>
 
   <script>
+    // Splash logic
+    const splash = document.getElementById("splash");
+    const mainContent = document.getElementById("mainContent");
+
+    window.addEventListener("load", () => {
+      const alreadyVisited = localStorage.getItem("visited");
+
+      if (!alreadyVisited) {
+        setTimeout(() => {
+          splash.classList.add("hidden");
+          mainContent.style.display = "block";
+          localStorage.setItem("visited", "true");
+        }, 2500);
+      } else {
+        splash.style.display = "none";
+        mainContent.style.display = "block";
+      }
+    });
+
+    // Restante do seu JS (upload + modal + tema)
     const fileInput   = document.getElementById('fileInput');
     const dropzone    = document.getElementById('dropzone');
     const modal       = document.getElementById('modal');
@@ -190,12 +245,12 @@
     const DIM_LIMIT_PX     = 1920;
 
     // Upload
-    fileInput.addEventListener('change', handleFiles);
-    dropzone.addEventListener('dragover', e => {
+    fileInput?.addEventListener('change', handleFiles);
+    dropzone?.addEventListener('dragover', e => {
       e.preventDefault(); dropzone.classList.add('dragover');
     });
-    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-    dropzone.addEventListener('drop', e => {
+    dropzone?.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone?.addEventListener('drop', e => {
       e.preventDefault();
       dropzone.classList.remove('dragover');
       fileInput.files = e.dataTransfer.files;
@@ -276,8 +331,8 @@
 
     function openModal()  { modal.classList.add('open'); }
     function closeModal() { modal.classList.remove('open'); }
-    closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    closeBtn?.addEventListener('click', closeModal);
+    modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
     function escapeHtml(str) {
@@ -287,7 +342,7 @@
     }
 
     // Toggle Theme
-    toggleTheme.addEventListener('click', () => {
+    toggleTheme?.addEventListener('click', () => {
       const html = document.documentElement;
       const current = html.getAttribute('data-theme');
       const next = current === 'light' ? 'dark' : 'light';
