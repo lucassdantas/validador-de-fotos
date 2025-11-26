@@ -22,358 +22,746 @@
       --ok: #10b981;
       --shadow: 0 10px 25px rgba(0,0,0,.1);
       --radius: 14px;
+
+      /* layout sizes */
+      --sidebar-width: 340px;
     }
 
+    /* theme variable mapping */
     [data-theme="light"] {
       --bg: var(--bg-light);
       --card: var(--card-light);
       --text: var(--text-light);
       --muted: var(--muted-light);
+
+      /* circle: for light theme we want DARK bg and WHITE number */
+      --circle-bg: var(--text-light);
+      --circle-color: #ffffff;
     }
     [data-theme="dark"] {
       --bg: var(--bg-dark);
       --card: var(--card-dark);
       --text: var(--text-dark);
       --muted: var(--muted-dark);
+
+      /* circle: for dark theme we want WHITE bg and DARK number (text-dark) */
+      --circle-bg: #ffffff;
+      --circle-color: var(--bg-dark);
     }
 
     * { box-sizing: border-box; }
     body {
-      margin: 0; padding: 32px;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 0; padding: 24px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
       background: var(--bg); color: var(--text);
       transition: background .25s, color .25s;
     }
-
-    .wrap {
-      max-width: 760px; margin: 0 auto;
-      background: var(--card);
-      border-radius: var(--radius); box-shadow: var(--shadow);
-      padding: 28px; transition: background .25s;
+    a{
+      color:inherit;
+    }
+    /* Top-level layout: left content + right sidebar */
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr var(--sidebar-width);
+      gap: 20px;
+      align-items: start;
     }
 
+    /* main content card */
+    .wrap {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      position: sticky;
+      top: 24px;
+      height: calc(100vh - 48px);
+      overflow-y: auto;
+    }
+
+    .sidebar .title { font-weight: 700; margin-bottom: 12px; font-size: 18px; }
+    .sidebar p { color: var(--muted); margin: 6px 0 12px; line-height:1.45; }
+
+    /* Header inside main content (desktop uses this; mobile will replace with compact header) */
     .header {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
-    .rd-logo{ width:100%; max-width:120px; background-color:#fff;border-radius:var(--radius);padding:1em;}
+    .rd-logo { width:100%; max-width:160px; background-color:#fff;border-radius:10px;padding:10px; }
 
-    h1 { margin: 0; font-size: 22px; }
-    p.desc { margin: 6px 0 20px; color: var(--muted); }
+    /* Mobile header (only visible on small screens) */
+    .mobile-header {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 12px;
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+    .mobile-header img { height:34px; object-fit:contain; }
+    .mobile-icons { display:flex; gap:8px; align-items:center; }
 
-    /* Botão de tema */
-    .theme-btn {
+    .icon-btn {
       border: none;
       background: transparent;
       font-size: 20px;
-      cursor: pointer;
-      padding: 6px 10px;
+      padding: 8px;
       border-radius: 8px;
+      cursor: pointer;
+    }
+    .icon-btn:active { transform: translateY(1px); }
+
+    h1 { margin: 6px 0 0; font-size: 20px; }
+    p.desc { margin: 6px 0 14px; color: var(--muted); }
+
+    .theme-btn {
+      border: none; background: transparent; font-size: 20px;
+      cursor: pointer; padding: 6px 10px; border-radius: 8px;
       transition: background .2s;
     }
-    .theme-btn:hover {
-      background: rgba(0,0,0,.08);
-    }
-    [data-theme="dark"] .theme-btn:hover {
-      background: rgba(255,255,255,.1);
-    }
+    .theme-btn:hover { background: rgba(0,0,0,.06); }
+    [data-theme="dark"] .theme-btn:hover { background: rgba(255,255,255,.06); }
 
     /* Dropzone */
     .dropzone {
       border: 2px dashed var(--muted);
-      border-radius: 14px;
-      padding: 40px 20px;
-      text-align: center;
-      cursor: pointer;
+      border-radius: 14px; padding: 34px 16px;
+      text-align: center; cursor: pointer;
       transition: border-color .2s, background .2s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 8px;
     }
-    .dropzone:hover {
-      border-color: var(--ok);
-      background: rgba(16,185,129,.08);
-    }
-    .dropzone.dragover {
-      border-color: var(--ok);
-      background: rgba(16,185,129,.15);
-    }
+    .dropzone:hover { border-color: var(--ok); background: rgba(16,185,129,.06); }
+    .dropzone.dragover { border-color: var(--ok); background: rgba(16,185,129,.12); }
+
     .dropzone input { display: none; }
-    .dropzone-icon {
-      font-size: 40px;
-      color: var(--muted);
-    }
-    .dropzone-text {
-      font-size: 15px;
-      color: var(--muted);
-      white-space: nowrap;
-    }
+    .dropzone-icon { font-size: 40px; color: var(--muted); }
+    .dropzone-text { font-size: 15px; color: var(--muted); }
 
     .result {
-      margin-top: 14px; padding: 12px 14px; border-radius: 10px; display: none;
+      margin-top: 14px; padding: 12px 14px;
+      border-radius: 10px; display: none;
     }
     .result.ok { display: block; background: #ecfdf5; border: 1px solid #a7f3d0; color: var(--ok); }
     .result.fail { display: block; background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); }
 
-    /* Modal */
+    /* Modal (centered) - same behavior */
     .modal {
-      display: none; position: fixed; inset: 0; z-index: 1000;
+      display: none; position: fixed; inset: 0; z-index: 1400;
       background: rgba(0,0,0,.55);
-      align-items: center; justify-content: center; padding: 16px;
+      align-items: center; justify-content: center;
+      padding: 16px;
     }
     .modal.open { display: flex; }
     .modal-card {
-      width: min(680px, 96vw); max-height: 86vh; overflow: auto;
-      background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
-      padding: 18px 18px 8px;
+      width: min(820px, 96vw); max-height: 86vh; overflow: auto;
+      background: var(--card);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 18px;
       animation: pop .18s ease-out;
     }
     @keyframes pop { from { transform: scale(.96); opacity: .4 } to { transform: scale(1); opacity: 1 } }
 
     .modal-header {
-      display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
     }
     .modal-title { font-size: 18px; margin: 0; color: var(--danger); }
     .close-btn {
-      border: 0; background: var(--danger); color: #fff; padding: 8px 12px; border-radius: 10px; cursor: pointer;
+      border: 0; background: var(--danger); color: #fff;
+      padding: 8px 12px; border-radius: 10px; cursor: pointer;
     }
-    .error-list { margin: 10px 0 0; padding: 0 0 10px 0; list-style: none; }
-    .error-item {
-      background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 12px; margin: 10px 0; color:var(--text-light);
-    }
-    .file-name { font-weight: 600; margin-bottom: 6px; word-break: break-all; }
-    .reasons { margin: 0; padding-left: 18px; }
-    .reasons li { margin: 4px 0; }
 
-    /* Splash screen */
-    .splash {
+    /* Two columns inside modal */
+    .modal-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .column-box {
+      background: var(--card);
+      border: 1px solid rgba(209,213,219,0.25);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .column-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .thumb {
+      width: 70px;
+      height: 70px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid #d1d5db;
+      background: #e5e7eb;
+    }
+
+    .valid-item, .error-item {
+      display: flex;
+      flex-direction:column;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .file-name {
+      font-weight: 600;
+      margin-bottom: 6px;
+      max-width: 160px; /* ~20 chars */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+    .reasons { padding-left:1.5em; }
+    .reasons li { margin: 3px 0; }
+
+    /* Sidebar specifics */
+    .guideline-step { display:flex; gap:12px; margin-bottom:14px; align-items:flex-start; }
+    .number-circle {
+      min-width:36px;
+      height:36px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      background: var(--circle-bg);
+      color: var(--circle-color);
+      flex-shrink:0;
+    }
+    .guideline-content { font-size:14px; color:var(--text); line-height:1.45; }
+
+    .checklist {
+      margin-top: 12px;
+      background: rgba(16,185,129,0.05);
+      border: 1px solid rgba(16,185,129,0.12);
+      padding: 10px;
+      border-radius: 10px;
+      color: var(--text);
+    }
+
+    /* Mobile sidebar overlay (drawer) */
+    .sidebar-drawer {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: min(92vw, 360px);
+      height: 100vh;
+      background: var(--card);
+      z-index: 1600;
+      box-shadow: 0 10px 30px rgba(0,0,0,.4);
+      transition: right .28s ease;
+      padding: 18px;
+      overflow-y: auto;
+    }
+    .sidebar-drawer.open { right: 0; }
+
+    .drawer-overlay {
       position: fixed;
       inset: 0;
-      background: #000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align:center;
-      z-index: 2000;
-      opacity: 1;
-      transition: all 1s ease;
-    }
-    .splash.hidden {
+      background: rgba(0,0,0,0.45);
+      z-index: 1550;
       opacity: 0;
-      transform: translateY(-100%);
       pointer-events: none;
+      transition: opacity .18s ease;
     }
-    .splash img {
-      max-width: 180px;
-      margin-bottom: 16px;
+    .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .drawer-close {
+      display:flex; justify-content:flex-end; margin-bottom:8px;
     }
-    .splash p {
-      color: #fff;
-      font-size: 32px;
-      letter-spacing: 1px;
-      opacity: 0.9;
+    .drawer-close button { border-radius:10px; padding:6px 10px; background:transparent; border:1px solid rgba(0,0,0,0.06); cursor:pointer; }
+    .header-icons-container{
+        display:flex; 
+        gap:8px; 
+        align-items:center;
     }
-    .splash span{
-      text-shadow:#ffffff44 0 1px 12px;
+    footer { margin-top:18px; text-align:center; color:var(--muted); }
+    #quoteBtnDesktop{
+      color: var(--text);
+      border:1px solid var(--text);
+      border-radius:100%;
+      height:30px;
+      width:30px;
+      display:none;
+      justify-content:center;
+      align-items:center;
     }
-    footer{
-      margin: 0 auto;
-      max-width:768px;
-      bottom:0;
-      padding:1em 0;
-      text-align:center;
+    /* Responsive behavior */
+    @media (max-width: 880px) {
+      #quoteBtnDesktop{
+        display:flex;
+      }
+      .rd-logo{
+        max-width:150px;
+      }
+      .modal-columns{
+        grid-template-columns: 1fr;
+      }
+      .column-box{
+        max-height:300px;
+        overflow-y:scroll;
+      }
+      .page { grid-template-columns: 1fr; padding: 0 12px; }
+      .sidebar { display:none; } /* hide desktop sidebar on small screens */
     }
-    a:visited, a{color:var(--text);}
+
+    @media (max-width:420px){
+      body { padding: 14px; }
+      .wrap { padding: 14px; }
+    }
+    .hidden{
+      display:none;
+      visibility:hidden;
+    }
+    /* Adicionando a animação para a classe splash-hidden */
+    .splash-hidden {
+      animation: slideUpAndHide 0.5s ease-out forwards; /* A animação de deslizar para cima e esconder */
+    }
+
+    @keyframes slideUpAndHide {
+      0% {
+        transform: translateY(0); /* Posição inicial (normal) */
+        opacity: 1; /* Totalmente visível */
+      }
+      100% {
+        transform: translateY(-100%); /* Move para cima (fora da tela) */
+        opacity: 0; /* Desaparece completamente */
+      }
+    }
   </style>
 </head>
 <body>
+
   <script>
-    // Se já visitou, remove o splash imediatamente
     if (localStorage.getItem("rd_tools_visited")) {
       document.write('<style>#splash{display:none !important;}</style>');
     }
   </script>
-  <!-- Splash screen -->
-  <div id="splash" class="splash">
-    <img src="imgs/logo-branca-rd-exclusive.png" alt="RD Exclusive" />
-    <p class="openingText">Uma Experiência <span>Exclusiva</span></p>
-  </div>
 
-  <div class="wrap" id="mainContent" style="display:none">
-    <div class="header">
-      <img src="imgs/rd-exclusive-logo.png" alt="logo rd exclusive" class='rd-logo'/>
-      <button id="toggleTheme" class="theme-btn">🌙</button>
+  <!-- Splash -->
+  <div id="splash" class="splash" style="position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;background:#000;">
+    <div style="text-align:center;color:#fff">
+      <img src="imgs/logo-branca-rd-exclusive.png" alt="RD Exclusive" style="max-width:160px;margin-bottom:14px"/>
+      <div style="font-size:26px">Uma Experiência <span style="font-weight:700">Exclusiva</span></div>
     </div>
-    <h1>Upload de Fotos</h1>
-    <p class="desc">As fotos devem estar em <strong>JPEG/JPG</strong>, com <strong>menos de 500 KB</strong>, no máximo <strong>1920 px</strong> em qualquer lado e <strong>nomeadas corretamente</strong>.</p>
-
-    <!-- Dropzone -->
-    <label for="fileInput" class="dropzone" id="dropzone">
-      <div class="dropzone-icon">📁</div>
-      <div class="dropzone-text">Clique ou arraste as fotos aqui</div>
-      <input id="fileInput" type="file" accept=".jpg,.jpeg,image/jpeg" multiple />
-    </label>
-
-    <div id="resultOk" class="result ok">Todas as fotos estão válidas ✅</div>
-    <div id="resultFail" class="result fail">Algumas fotos possuem erros. Veja a lista no popup.</div>
   </div>
-  
-  <footer id="footer" ></footer>
-  <!-- Modal -->
+
+  <div class="page" id="pageRoot">
+    <!-- LEFT: Main app -->
+    <main class="wrap" id="mainContent" style="display:none;">
+      <!-- Mobile header -->
+      <div class="mobile-header" id="mobileHeader">
+        <img src="imgs/rd-exclusive-logo.png" alt="RD Exclusive" />
+        <div class="mobile-icons">
+          <button id="toggleThemeMobile" class="icon-btn" aria-label="Alternar tema">🌙</button>
+          <button id="openSidebarBtn" class="icon-btn" aria-label="Abrir dicas">💬</button>
+        </div>
+      </div>
+
+      <!-- Desktop header -->
+      <div class="header" id="desktopHeader">
+        <img src="imgs/rd-exclusive-logo.png" class="rd-logo" alt="RD Exclusive logo"/>
+        <div class='header-icons-container'>
+          <button id="toggleTheme" class="theme-btn" title="Alternar tema">🌙</button>
+          <button id="quoteBtnDesktop" class="icon-btn" title="Abrir dicas">?</button>
+        </div>
+      </div>
+
+      <h1>Upload de Fotos</h1>
+      <p class="desc">As fotos devem estar em <strong>JPEG/JPG</strong>, com <strong>menos de 500 KB</strong>, no máximo <strong>1920 px</strong>.</p>
+
+      <label for="fileInput" class="dropzone" id="dropzone">
+        <div class="dropzone-icon">📁</div>
+        <div class="dropzone-text">Clique ou arraste as fotos aqui</div>
+        <input id="fileInput" type="file" accept=".jpg,.jpeg,image/jpeg" multiple />
+      </label>
+
+      <div id="resultOk" class="result ok">Todas as fotos estão válidas ✅</div>
+      <div id="resultFail" class="result fail">Algumas fotos possuem erros. Veja a lista no popup.</div>
+
+      <footer id="footer"></footer>
+    </main>
+
+    <!-- RIGHT: Sidebar (desktop always visible) -->
+    <aside class="sidebar" id="sidebarDesktop" aria-hidden="false">
+      <div class="title">Como fazer uma boa imagem</div>
+
+      <div class="guideline-step">
+        <div class="number-circle">1</div>
+        <div class="guideline-content">
+          <strong>Formato</strong>
+          <p>Utilize JPEG;<br>PNG apenas se a imagem tiver fundo transparente (evite sempre que possível).</p>
+        </div>
+      </div>
+
+      <div class="guideline-step">
+        <div class="number-circle">2</div>
+        <div class="guideline-content">
+          <strong>Tamanho da Imagem</strong>
+          <p>O maior lado da imagem não pode ultrapassar 1920px (seja largura ou altura).<br>
+          <em>Sugestão:</em><br>
+          Horizontais: 1920px L x 1280px A.<br>
+          Verticais: 1280px L x 1920px A.<br>
+          Quadradas: 1080 x 1080px.</p>
+        </div>
+      </div>
+
+      <div class="guideline-step">
+        <div class="number-circle">3</div>
+        <div class="guideline-content">
+          <strong>Peso do Arquivo</strong>
+          <p>Máximo: 300KB (ideal). Comprima as imagens se necessário.<br>Sugestão de ferramenta: <a href="https://www.iloveimg.com/compress-image" target="_blank" rel="noopener">iloveimg.com/comprimir-imagem</a></p>
+        </div>
+      </div>
+
+      <div class="guideline-step">
+        <div class="number-circle">4</div>
+        <div class="guideline-content">
+          <strong>Nome do Arquivo</strong>
+          <p>Use um padrão descritivo, com palavras-chave separadas por hífen.<br>Exemplo: <em>essa-e-uma-imagem-exemplo-renomeada.jpg</em></p>
+        </div>
+      </div>
+
+      <div class="checklist">
+        Imagens otimizadas garantem:<br>
+        ✅ Carregamento mais rápido<br>
+        ✅ Melhor experiência para o usuário<br>
+        ✅ Melhor desempenho de SEO
+      </div>
+    </aside>
+  </div>
+
+  <!-- Mobile sidebar drawer & overlay (hidden on desktop) -->
+  <div id="drawerOverlay" class="drawer-overlay" aria-hidden="true"></div>
+  <aside id="sidebarDrawer" class="sidebar-drawer" aria-hidden="true">
+    <div class="drawer-close">
+      <button id="closeDrawer" aria-label="Fechar">✕</button>
+    </div>
+
+    <div class="title">Como fazer uma boa imagem</div>
+
+    <div class="guideline-step">
+      <div class="number-circle">1</div>
+      <div class="guideline-content">
+        <strong>Formato</strong>
+        <p>Utilize JPEG;<br>PNG apenas se a imagem tiver fundo transparente (evite sempre que possível).</p>
+      </div>
+    </div>
+
+    <div class="guideline-step">
+      <div class="number-circle">2</div>
+      <div class="guideline-content">
+        <strong>Tamanho da Imagem</strong>
+        <p>O maior lado da imagem não pode ultrapassar 1920px (seja largura ou altura).<br>
+        <em>Sugestão:</em><br>
+        Horizontais: 1920px L x 1280px A.<br>
+        Verticais: 1280px L x 1920px A.<br>
+        Quadradas: 1080 x 1080px.</p>
+      </div>
+    </div>
+
+    <div class="guideline-step">
+      <div class="number-circle">3</div>
+      <div class="guideline-content">
+        <strong>Peso do Arquivo</strong>
+        <p>Máximo: 300KB (ideal). Comprima as imagens se necessário.<br>Ferramenta: <a href="https://www.iloveimg.com/compress-image" target="_blank" rel="noopener">iloveimg.com/comprimir-imagem</a></p>
+      </div>
+    </div>
+
+    <div class="guideline-step">
+      <div class="number-circle">4</div>
+      <div class="guideline-content">
+        <strong>Nome do Arquivo</strong>
+        <p>Use um padrão descritivo, com palavras-chave separadas por hífen.<br>Exemplo: <em>essa-e-uma-imagem-exemplo-renomeada.jpg</em></p>
+      </div>
+    </div>
+
+    <div class="checklist">
+      Imagens otimizadas garantem:<br>
+      ✅ Carregamento mais rápido<br>
+      ✅ Melhor experiência para o usuário<br>
+      ✅ Melhor desempenho de SEO
+    </div>
+  </aside>
+
+  <!-- Modal (centered) -->
   <div id="modal" class="modal" aria-modal="true" role="dialog">
     <div class="modal-card">
       <div class="modal-header">
-        <h2 class="modal-title">Fotos inválidas encontradas</h2>
+        <h2 class="modal-title">Resultado da Análise</h2>
         <button class="close-btn" id="closeModalBtn">Fechar</button>
       </div>
-      <ul id="errorList" class="error-list"></ul>
+
+      <div class="modal-columns">
+        <div class="column-box">
+          <div class="column-title" style="color:var(--ok)">Imagens Válidas</div>
+          <ul id="validList"></ul>
+        </div>
+
+        <div class="column-box">
+          <div class="column-title" style="color:var(--danger)">Imagens Inválidas</div>
+          <ul id="errorList"></ul>
+        </div>
+      </div>
     </div>
   </div>
 
-  <script defer>
-    // Splash logic
-    const splash = document.getElementById("splash");
-    const mainContent = document.getElementById("mainContent");
-    const footer = document.getElementById('footer');
+<script>
+  /* --- initialization & DOM handles --- */
+  const splash = document.getElementById("splash");
+  const mainContent = document.getElementById("mainContent");
+  const footer = document.getElementById("footer");
+  const toggleTheme = document.getElementById('toggleTheme');
+  const toggleThemeMobile = document.getElementById('toggleThemeMobile');
+  const openSidebarBtn = document.getElementById('openSidebarBtn');
+  const quoteBtnDesktop = document.getElementById('quoteBtnDesktop');
 
-    window.addEventListener("load", () => {
-      const alreadyVisited = localStorage.getItem("rd_tools_visited");
-
-      if (!alreadyVisited) {
-        setTimeout(() => {
-          splash.classList.add("hidden");
-          mainContent.style.display = "block";
-          localStorage.setItem("rd_tools_visited", "true");
-        }, 2000);
-      } else {
-        splash.style.display = "none";
+  window.addEventListener("load", () => {
+    const visited = localStorage.getItem("rd_tools_visited");
+    if (!visited) {
+      setTimeout(() => {
+        splash.classList.add("splash-hidden");
         mainContent.style.display = "block";
+        localStorage.setItem("rd_tools_visited", "true");
+      }, 800); // quicker splash for dev
+    } else {
+      splash.style.display = "none";
+      mainContent.style.display = "block";
+    }
+    footer.innerHTML = `© ${new Date().getFullYear()} RD Exclusive`;
+  });
+
+  /* --- sidebar drawer (mobile) --- */
+  const drawer = document.getElementById('sidebarDrawer');
+  const overlay = document.getElementById('drawerOverlay');
+  const closeDrawerBtn = document.getElementById('closeDrawer');
+  const sidebarDesktop = document.getElementById('sidebarDesktop');
+
+  function openDrawer() {
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+    drawer.setAttribute('aria-hidden','false');
+    overlay.setAttribute('aria-hidden','false');
+  }
+  function closeDrawer() {
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
+    drawer.setAttribute('aria-hidden','true');
+    overlay.setAttribute('aria-hidden','true');
+  }
+
+  openSidebarBtn?.addEventListener('click', () => {
+    // on mobile opens drawer; on desktop scroll to sidebar
+    if (window.innerWidth <= 880) {
+      openDrawer();
+    } else {
+      sidebarDesktop.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Optionally briefly flash background
+      sidebarDesktop.style.transition = 'box-shadow .18s';
+      sidebarDesktop.style.boxShadow = '0 0 0 3px rgba(0,0,0,0.06)';
+      setTimeout(()=> sidebarDesktop.style.boxShadow = '', 300);
+    }
+  });
+  quoteBtnDesktop?.addEventListener('click', () => openSidebarBtn?.click());
+
+  closeDrawerBtn?.addEventListener('click', closeDrawer);
+  overlay?.addEventListener('click', closeDrawer);
+
+  /* --- theme toggle --- */
+  function toggleThemeFn() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme') || 'light';
+    const next = current === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    // toggle text on buttons
+    const themeGlyph = next === 'light' ? '🌙' : '☀️';
+    if (toggleTheme) toggleTheme.textContent = themeGlyph;
+    if (toggleThemeMobile) toggleThemeMobile.textContent = themeGlyph;
+  }
+
+  toggleTheme?.addEventListener('click', toggleThemeFn);
+  toggleThemeMobile?.addEventListener('click', toggleThemeFn);
+
+  /* --- validation app --- */
+  const fileInput = document.getElementById('fileInput');
+  const dropzone = document.getElementById('dropzone');
+  const modal = document.getElementById('modal');
+  const closeBtn = document.getElementById('closeModalBtn');
+  const errorListEl = document.getElementById('errorList');
+  const validListEl = document.getElementById('validList');
+  const resultOk = document.getElementById('resultOk');
+  const resultFail = document.getElementById('resultFail');
+
+  const SIZE_LIMIT = 500 * 1024; // 500 KB (kept for compatibility)
+  const DIM_LIMIT = 1920;
+
+  fileInput?.addEventListener('change', handleFiles);
+  dropzone?.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropzone.classList.add('dragover');
+  });
+  dropzone?.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+  dropzone?.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    fileInput.files = e.dataTransfer.files;
+    handleFiles();
+  });
+
+  async function handleFiles() {
+    hideBanners();
+    const files = Array.from(fileInput.files || []);
+    if (!files.length) return;
+
+    const validations = await Promise.all(files.map(validateFile));
+    const invalids = validations.filter(v => v.reasons.length > 0);
+    const valids = validations.filter(v => v.reasons.length === 0);
+
+    renderValidImages(valids);
+    renderErrors(invalids);
+
+    if (invalids.length === 0) {
+      resultOk.style.display = 'block';
+      return; // Option B behavior: don't open modal when all valid
+    } else {
+      resultFail.style.display = 'block';
+      openModal();
+    }
+  }
+
+  function hideBanners() {
+    resultOk.style.display = 'none';
+    resultFail.style.display = 'none';
+  }
+
+  async function validateFile(file) {
+    const reasons = [];
+    const name = file.name || '';
+    const ext = name.split('.').pop()?.toLowerCase() || '';
+
+    if (!['jpg','jpeg'].includes(ext)) {
+      reasons.push('Extensão inválida (apenas .jpg ou .jpeg).');
+    }
+    if (file.size >= SIZE_LIMIT) {
+      reasons.push(`Arquivo com ${(file.size/1024).toFixed(0)} KB (tem que ser menor que 500 KB).`);
+    }
+    try {
+      const { width, height } = await getImageDimensions(file);
+      if (width > DIM_LIMIT || height > DIM_LIMIT) {
+        reasons.push(`Dimensão ${width}×${height}px (cada lado deve ter no máximo 1920px).`);
       }
-      const year = new Date().getFullYear();
-      footer.innerHTML = `Copyright © ${year} <a href='https://rdexclusive.com.br/' target='_blank'>RD Exclusive</a> | Todos os direitos reservados.`;
-      
+    } catch (e) {
+      reasons.push('Não foi possível ler as dimensões da imagem.');
+    }
+
+    return { file, reasons };
+  }
+
+  function getImageDimensions(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        resolve({ width: img.naturalWidth, height: img.naturalHeight });
+        URL.revokeObjectURL(url);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject();
+      };
+      img.src = url;
     });
+  }
 
-    // Restante do seu JS (upload + modal + tema)
-    const fileInput   = document.getElementById('fileInput');
-    const dropzone    = document.getElementById('dropzone');
-    const modal       = document.getElementById('modal');
-    const closeBtn    = document.getElementById('closeModalBtn');
-    const errorListEl = document.getElementById('errorList');
-    const resultOk    = document.getElementById('resultOk');
-    const resultFail  = document.getElementById('resultFail');
-    const toggleTheme = document.getElementById('toggleTheme');
-
-    const SIZE_LIMIT_BYTES = 500 * 1024; 
-    const DIM_LIMIT_PX     = 1920;
-
-    // Upload
-    fileInput?.addEventListener('change', handleFiles);
-    dropzone?.addEventListener('dragover', e => {
-      e.preventDefault(); dropzone.classList.add('dragover');
-    });
-    dropzone?.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
-    dropzone?.addEventListener('drop', e => {
-      e.preventDefault();
-      dropzone.classList.remove('dragover');
-      fileInput.files = e.dataTransfer.files;
-      handleFiles();
-    });
-
-    async function handleFiles() {
-      hideBanners();
-      const files = Array.from(fileInput.files || []);
-      if (!files.length) return;
-
-      const validations = await Promise.all(files.map(validateFile));
-      const invalids = validations.filter(v => v.reasons.length > 0);
-
-      if (invalids.length === 0) {
-        resultOk.style.display = 'block';
-      } else {
-        resultFail.style.display = 'block';
-        renderErrors(invalids);
-        openModal();
-      }
-    }
-
-    function hideBanners() {
-      resultOk.style.display = 'none';
-      resultFail.style.display = 'none';
-    }
-
-    async function validateFile(file) {
-      const reasons = [];
-      const name = file.name;
-      const ext = name.split('.').pop()?.toLowerCase() || '';
-
-      if (!['jpg', 'jpeg'].includes(ext)) {
-        reasons.push('Extensão inválida (apenas .jpg ou .jpeg).');
-      }
-      if (file.size >= SIZE_LIMIT_BYTES) {
-        const kb = (file.size / 1024).toFixed(0);
-        reasons.push(`Arquivo com ${kb} KB (tem que ser menor que 500 KB).`);
-      }
-
-      try {
-        const { width, height } = await getImageDimensions(file);
-        if (width > DIM_LIMIT_PX || height > DIM_LIMIT_PX) {
-          reasons.push(`Dimensão ${width}×${height}px (cada lado deve ter no máximo 1920px).`);
-        }
-      } catch (e) {
-        reasons.push('Não foi possível ler as dimensões da imagem.');
-      }
-      return { file, reasons };
-    }
-
-    function getImageDimensions(file) {
-      return new Promise((resolve, reject) => {
-        const url = URL.createObjectURL(file);
-        const img = new Image();
-        img.onload = () => {
-          resolve({ width: img.naturalWidth, height: img.naturalHeight });
-          URL.revokeObjectURL(url);
-        };
-        img.onerror = () => { reject(); URL.revokeObjectURL(url); };
-        img.src = url;
-      });
-    }
-
-    function renderErrors(invalids) {
-      errorListEl.innerHTML = '';
-      invalids.forEach(({ file, reasons }) => {
-        const li = document.createElement('li');
-        li.className = 'error-item';
-        li.innerHTML = `
+  function renderErrors(invalids) {
+    errorListEl.innerHTML = '';
+    invalids.forEach(({ file, reasons }) => {
+      const thumbURL = URL.createObjectURL(file);
+      const li = document.createElement('li');
+      li.className = 'error-item';
+      li.innerHTML = `
+        <img class="thumb" src="${thumbURL}">
+        <div>
           <div class="file-name">${escapeHtml(file.name)}</div>
           <ul class="reasons">${reasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
-        `;
-        errorListEl.appendChild(li);
-      });
-    }
-
-    function openModal()  { modal.classList.add('open'); }
-    function closeModal() { modal.classList.remove('open'); }
-    closeBtn?.addEventListener('click', closeModal);
-    modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-
-    function escapeHtml(str) {
-      return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;')
-                        .replaceAll('>','&gt;').replaceAll('"','&quot;')
-                        .replaceAll("'","&#039;");
-    }
-
-    // Toggle Theme
-    toggleTheme?.addEventListener('click', () => {
-      const html = document.documentElement;
-      const current = html.getAttribute('data-theme');
-      const next = current === 'light' ? 'dark' : 'light';
-      html.setAttribute('data-theme', next);
-      toggleTheme.textContent = next === 'light' ? '🌙' : '☀️';
+        </div>
+      `;
+      errorListEl.appendChild(li);
     });
-  </script>
+  }
+
+  function renderValidImages(valids) {
+    validListEl.innerHTML = '';
+    valids.forEach(({ file }) => {
+      const thumbURL = URL.createObjectURL(file);
+      const li = document.createElement('li');
+      li.className = 'valid-item';
+      li.innerHTML = `
+        <img class="thumb" src="${thumbURL}">
+        <div>
+          <div class="file-name">${escapeHtml(file.name)}</div>
+        </div>
+      `;
+      validListEl.appendChild(li);
+    });
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  function openModal() { modal.classList.add('open'); }
+  function closeModal() { modal.classList.remove('open'); }
+
+  closeBtn?.addEventListener('click', closeModal);
+  modal?.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  /* ensure theme glyphs set at load */
+  (function initThemeGlyphs(){
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme') || 'light';
+    const glyph = current === 'light' ? '🌙' : '☀️';
+    if (toggleTheme) toggleTheme.textContent = glyph;
+    if (toggleThemeMobile) toggleThemeMobile.textContent = glyph;
+  })();
+
+  /* Accessibility: close drawer with Escape */
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      // close drawer if open
+      if (drawer.classList.contains('open')) closeDrawer();
+      // close modal if open
+      if (modal.classList.contains('open')) closeModal();
+    }
+  });
+
+</script>
 </body>
 </html>
